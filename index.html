@@ -228,7 +228,7 @@ footer .latin { font-family: var(--font-latin); }
 .post-body hr { border: 0; border-top: 1px solid var(--line); width: 100%; }
 
 /* Sky behind everything: soft color clouds and twinkling stars */
-.sky { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.sky { position: fixed; inset: 0 0 -35vh 0; z-index: 0; pointer-events: none; overflow: hidden; }
 .blob { position: absolute; border-radius: 50%; filter: blur(60px); }
 .blob.a { width: 420px; height: 420px; background: var(--blob-a); top: -140px; right: -160px; animation: drift 22s ease-in-out infinite alternate; }
 .blob.b { width: 380px; height: 380px; background: var(--blob-b); top: 42%; left: -180px; animation: drift 26s ease-in-out infinite alternate-reverse; }
@@ -308,6 +308,36 @@ button.smile.boing { animation: boing .45s cubic-bezier(.3, 1.6, .5, 1); }
 .posts a span { transition: transform .2s ease; }
 .posts a:hover span { transform: translateX(4px); }
 
+/* Scrolling polish */
+html { scroll-behavior: smooth; scrollbar-width: thin; scrollbar-color: var(--dot) transparent; }
+::selection { background: var(--tint-peach); color: var(--fg); }
+h2, #blog { scroll-margin-top: 32px; }
+.progress { position: fixed; inset: 0 0 auto 0; height: calc(env(safe-area-inset-top, 0px) + 3px); z-index: 6; pointer-events: none; }
+.progress span {
+  position: absolute; left: 0; bottom: 0; width: 100%; height: 3px;
+  transform-origin: 0 50%; transform: scaleX(0);
+  background: linear-gradient(90deg, var(--peach), var(--sun), var(--mint));
+  border-radius: 0 3px 3px 0;
+}
+.to-top {
+  position: fixed;
+  right: max(16px, calc(env(safe-area-inset-right, 0px) + 16px));
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  z-index: 5;
+  width: 46px; height: 46px; border-radius: 50%;
+  border: 1px solid var(--line); background: var(--surface); color: var(--peach);
+  display: grid; place-items: center; cursor: pointer;
+  opacity: 0; transform: translateY(18px) scale(.8); pointer-events: none;
+  transition: opacity .3s ease, transform .4s cubic-bezier(.3, 1.6, .5, 1), background-color .6s ease, border-color .6s ease;
+}
+.to-top.show { opacity: 1; transform: none; pointer-events: auto; }
+.to-top.show:hover { transform: translateY(-4px); }
+.to-top:focus-visible { outline: 3px solid var(--mint); outline-offset: 3px; }
+.to-top svg { width: 20px; height: 20px; }
+.reveal { transition: opacity .8s ease, transform .8s cubic-bezier(.2, .8, .2, 1); transition-delay: var(--d, 0s); }
+.reveal.pre { opacity: 0; transform: translateY(28px); }
+.chip.reveal.pre { transform: translateY(14px) scale(.9); }
+
 /* Day / night switch */
 body { transition: background-color .6s ease, color .6s ease; }
 .theme-btn {
@@ -380,7 +410,8 @@ body { transition: background-color .6s ease, color .6s ease; }
 
 @media (prefers-reduced-motion: reduce) {
   button.smile, .chip, .posts a span { transition: none; }
-  body, .theme-btn { transition: none; }
+  body, .theme-btn, .to-top, .reveal { transition: none; }
+  html { scroll-behavior: auto; }
   .theme-btn.spin svg { animation: none; }
   .globe-box, h1 .l, h1 .eye, button.smile.boing, .wishes li:hover .mark svg, .blob, .star, .cloud { animation: none; }
   .star { opacity: .7; }
@@ -390,6 +421,10 @@ body { transition: background-color .6s ease, color .6s ease; }
 </head>
 <body>
 
+<div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+<button class="to-top" id="toTop" type="button" aria-label="回到顶部" title="回到顶部" tabindex="-1">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg>
+</button>
 <button class="theme-btn" id="themeBtn" type="button" aria-label="切换到夜晚" title="切换到夜晚">
   <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" hidden><circle cx="12" cy="12" r="4.2" fill="currentColor"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg>
   <svg class="moon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a6.8 6.8 0 0 0 10.7 10.7z"/><circle cx="17" cy="5" r="1.1" fill="var(--sun)"/><circle cx="20.5" cy="8.5" r=".8" fill="var(--sun)"/></svg>
@@ -623,7 +658,12 @@ body { transition: background-color .6s ease, color .6s ease; }
   cv.addEventListener('pointerup', release);
   cv.addEventListener('pointercancel', release);
 
+  var onScreen = true;
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (es) { onScreen = es[0].isIntersecting; }).observe(cv);
+  }
   function loop(now) {
+    if (!onScreen) { requestAnimationFrame(loop); return; }
     if (!dragging) {
       vel += (BASE_SPEED - vel) * 0.03;
       angle += vel;
@@ -727,7 +767,7 @@ body { transition: background-color .6s ease, color .6s ease; }
     rDate.setAttribute('datetime', p.date);
     rBody.innerHTML = '<p>正在打开…</p>';
     document.title = p.title + ' · Momo';
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: 'instant' });
     fetch('posts/' + p.slug + '.md')
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
       .then(function (md) {
@@ -745,7 +785,7 @@ body { transition: background-color .6s ease, color .6s ease; }
     document.title = 'Momo 的小星球';
     var target = h && document.getElementById(h);
     if (target) target.scrollIntoView();
-    else if (wasReading) window.scrollTo(0, 0);
+    else if (wasReading) window.scrollTo({ top: 0, behavior: 'instant' });
   }
 
   fetch('posts/posts.json')
@@ -793,6 +833,56 @@ body { transition: background-color .6s ease, color .6s ease; }
         greet.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 260, easing: 'ease-out' });
       };
   }, 2400);
+})();
+</script>
+
+<script>
+// Progress bar, back-to-top button, gentle parallax and reveal on scroll
+(function () {
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var bar = document.getElementById('progressBar');
+  var toTop = document.getElementById('toTop');
+  var sky = document.getElementById('sky');
+  var ticking = false;
+
+  function update() {
+    ticking = false;
+    var y = window.scrollY, max = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.transform = 'scaleX(' + (max > 0 ? Math.min(1, y / max) : 0) + ')';
+    var show = y > window.innerHeight * 0.6;
+    toTop.classList.toggle('show', show);
+    toTop.tabIndex = show ? 0 : -1;
+    if (!reduce) sky.style.transform = 'translate3d(0,' + (-Math.min(y * 0.06, window.innerHeight * 0.3)).toFixed(1) + 'px,0)';
+  }
+  window.addEventListener('scroll', function () {
+    if (!ticking) { ticking = true; requestAnimationFrame(update); }
+  }, { passive: true });
+  window.addEventListener('resize', update);
+  window.addEventListener('hashchange', function () { setTimeout(update, 50); });
+  update();
+
+  toTop.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+    document.getElementById('themeBtn').focus({ preventScroll: true });
+  });
+
+  // Things below the first screen float up as they come into view
+  if (reduce || !('IntersectionObserver' in window)) return;
+  var items = [].slice.call(document.querySelectorAll('#home > section, .wishes li, .chip'));
+  [].forEach.call(document.querySelectorAll('.wishes li'), function (el, i) { el.style.setProperty('--d', (i * 0.12) + 's'); });
+  [].forEach.call(document.querySelectorAll('.chip'), function (el, i) { el.style.setProperty('--d', (0.15 + i * 0.06) + 's'); });
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) { e.target.classList.remove('pre'); io.unobserve(e.target); }
+    });
+  }, { rootMargin: '0px 0px -8% 0px' });
+  items.forEach(function (el) {
+    el.classList.add('reveal');
+    if (el.getBoundingClientRect().top > window.innerHeight * 0.92) {
+      el.classList.add('pre');
+      io.observe(el);
+    }
+  });
 })();
 </script>
 </body>
