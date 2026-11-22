@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Momo 的小星球</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;800&family=Noto+Sans+SC:wght@400;500;700&family=ZCOOL+KuaiLe&display=swap">
+<style>
+/* Layout: one narrow column; a slowly turning dotted globe is the single bold moment, everything else stays quiet. */
+:root {
+  --bg: #F5F8F7;
+  --surface: #FFFFFF;
+  --fg: #22302E;
+  --muted: #6B7C79;
+  --line: #DDE6E3;
+  --peach: #F2738C;
+  --mint: #3FAE8C;
+  --dot: #B9CAC5;
+  --font-display: "ZCOOL KuaiLe", "Nunito", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-latin: "Nunito", "Noto Sans SC", system-ui, sans-serif;
+  --font-body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121918; --surface: #19221F; --fg: #E6EEEB; --muted: #94A6A1;
+    --line: #2A3633; --peach: #FF94A8; --mint: #67D2B0; --dot: #3E4F4B;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121918; --surface: #19221F; --fg: #E6EEEB; --muted: #94A6A1;
+  --line: #2A3633; --peach: #FF94A8; --mint: #67D2B0; --dot: #3E4F4B;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.75;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+}
+.wrap {
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 72px;
+  padding-block: 56px 40px;
+}
+
+/* Hero */
+.hero { display: grid; gap: 28px; justify-items: start; }
+.globe-box {
+  width: min(300px, 78vw);
+  aspect-ratio: 1;
+  max-width: 100%;
+  position: relative;
+  justify-self: center;
+}
+#globe { width: 100%; height: 100%; display: block; }
+.eyebrow {
+  font-family: var(--font-latin);
+  font-size: 13px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+h1 {
+  font-family: var(--font-latin);
+  font-weight: 800;
+  font-size: clamp(56px, 14vw, 88px);
+  line-height: 1;
+  margin: 0;
+  letter-spacing: -.02em;
+}
+h1 .peach { color: var(--peach); }
+.lead {
+  font-family: var(--font-display);
+  font-size: 22px;
+  line-height: 1.6;
+  margin: 0;
+  text-wrap: balance;
+}
+.smile-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
+button.smile {
+  font: 500 15px var(--font-body);
+  color: var(--bg);
+  background: var(--fg);
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: transform .15s ease, background .2s ease;
+}
+button.smile:hover { background: var(--peach); }
+button.smile:active { transform: scale(.96); }
+button.smile:focus-visible { outline: 3px solid var(--mint); outline-offset: 3px; }
+.count { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+.count b { color: var(--peach); font-family: var(--font-latin); font-size: 16px; }
+
+/* Sections */
+section { display: grid; gap: 20px; }
+h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 26px;
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+h2 small {
+  font-family: var(--font-latin);
+  font-size: 13px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+p { margin: 0; max-width: 34em; }
+
+.wishes { list-style: none; margin: 0; padding: 0; display: grid; border-top: 1px solid var(--line); }
+.wishes li {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 16px;
+  padding-block: 20px;
+  border-bottom: 1px solid var(--line);
+  align-items: start;
+}
+.wishes .mark {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+.wishes svg { width: 22px; height: 22px; }
+.wishes h3 { margin: 0 0 4px; font-size: 17px; font-weight: 700; }
+.wishes p { color: var(--muted); font-size: 15px; }
+.wishes > li > div { min-width: 0; }
+
+.explore { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip {
+  font-size: 14px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px dashed var(--mint);
+  color: var(--fg);
+}
+.chip.done { border-style: solid; background: var(--mint); color: var(--bg); }
+
+footer {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px;
+  color: var(--muted); font-size: 13px;
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+}
+footer .latin { font-family: var(--font-latin); }
+
+.stack { display: flex; flex-direction: column; gap: 72px; }
+
+/* Blog list */
+.posts { list-style: none; margin: 0; padding: 0; display: grid; border-top: 1px solid var(--line); }
+.posts li { border-bottom: 1px solid var(--line); }
+.posts a {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 16px;
+  padding-block: 18px;
+  color: inherit;
+  text-decoration: none;
+}
+.posts a:hover strong { color: var(--peach); }
+.posts a:focus-visible { outline: 3px solid var(--mint); outline-offset: 2px; border-radius: 6px; }
+.posts time { font-family: var(--font-latin); color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; padding-top: 2px; }
+.posts span { display: grid; gap: 2px; min-width: 0; }
+.posts strong { font-size: 17px; font-weight: 700; transition: color .2s ease; }
+.posts em { font-style: normal; color: var(--muted); font-size: 15px; }
+.posts .empty { color: var(--muted); padding-block: 18px; font-size: 15px; }
+@media (max-width: 420px) { .posts a { grid-template-columns: 1fr; gap: 4px; } }
+
+/* Reader */
+#reader { gap: 32px; }
+.back { color: var(--muted); text-decoration: none; font-size: 15px; justify-self: start; }
+.back:hover { color: var(--peach); }
+.back:focus-visible { outline: 3px solid var(--mint); outline-offset: 3px; border-radius: 4px; }
+.post-head { display: grid; gap: 12px; }
+.post-head h1 { font-family: var(--font-display); font-weight: 400; font-size: clamp(32px, 8vw, 44px); line-height: 1.3; letter-spacing: 0; text-wrap: balance; }
+.post-body { display: grid; gap: 18px; min-width: 0; font-size: 17px; line-height: 1.9; }
+.post-body > * { margin: 0; max-width: 34em; }
+.post-body h2 { font-size: 22px; display: block; margin-top: 16px; }
+.post-body h3 { font-size: 18px; margin-top: 8px; }
+.post-body a { color: var(--mint); text-underline-offset: 3px; }
+.post-body img { border-radius: 12px; }
+.post-body blockquote { border-left: 3px solid var(--peach); padding-left: 16px; color: var(--muted); }
+.post-body ul, .post-body ol { padding-left: 1.4em; }
+.post-body code { font-size: .9em; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; }
+.post-body pre { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px; }
+.post-body pre code { border: 0; padding: 0; }
+.post-body hr { border: 0; border-top: 1px solid var(--line); width: 100%; }
+
+/* Cute motion */
+html, body { overflow-x: clip; }
+.globe-box { animation: pop .9s cubic-bezier(.3, 1.5, .5, 1) both; }
+#globe { cursor: grab; touch-action: pan-y; }
+#globe:active { cursor: grabbing; }
+@keyframes pop { from { transform: scale(.82) rotate(-8deg); } to { transform: none; } }
+
+h1 .l { display: inline-block; animation: hop .75s cubic-bezier(.3, 1.7, .5, 1) both; animation-delay: calc(.25s + var(--i) * 90ms); }
+h1 .eye { display: inline-block; transform-origin: 50% 65%; animation: blink 5s 2s infinite; }
+@keyframes hop { 0% { transform: translateY(-45%) scale(.85, 1.1); } 60% { transform: translateY(4%) scale(1.08, .92); } 100% { transform: none; } }
+@keyframes blink { 0%, 90%, 96%, 100% { transform: none; } 93% { transform: scaleY(.12); } }
+
+.smile-row { position: relative; }
+.heart { position: absolute; width: 18px; height: 18px; pointer-events: none; z-index: 2; }
+.heart svg { width: 100%; height: 100%; fill: var(--peach); display: block; }
+button.smile.boing { animation: boing .45s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes boing { 0% { transform: scale(.9); } 50% { transform: scale(1.08); } 100% { transform: none; } }
+
+.wishes li:hover .mark svg { animation: wiggle .6s ease; }
+@keyframes wiggle { 0%, 100% { transform: none; } 25% { transform: rotate(-12deg) scale(1.1); } 60% { transform: rotate(9deg) scale(1.1); } }
+.chip { transition: transform .2s cubic-bezier(.3, 1.6, .5, 1); }
+.chip:hover { transform: translateY(-3px) rotate(-2deg); }
+.posts a span { transition: transform .2s ease; }
+.posts a:hover span { transform: translateX(4px); }
+
+@media (prefers-reduced-motion: reduce) {
+  button.smile, .chip, .posts a span { transition: none; }
+  .globe-box, h1 .l, h1 .eye, button.smile.boing, .wishes li:hover .mark svg { animation: none; }
+  .chip:hover, .posts a:hover span { transform: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<main id="home" class="stack">
+  <header class="hero">
+    <div class="globe-box"><canvas id="globe" aria-label="一颗慢慢转动的小地球，粉色的点是收到的微笑"></canvas></div>
+    <div class="eyebrow">Hello · 你好呀 · こんにちは</div>
+    <h1 aria-label="Momo"><span aria-hidden="true"><span class="l" style="--i:0">M</span><span class="l" style="--i:1"><span class="eye">o</span></span><span class="peach"><span class="l" style="--i:2">m</span><span class="l" style="--i:3"><span class="eye">o</span></span></span></span></h1>
+    <p class="lead">喜欢到处看看、到处问问。<br>希望这颗星球上的每个人，都能开开心心。</p>
+    <div class="smile-row">
+      <button class="smile" id="smileBtn" type="button">给世界送一个微笑</button>
+      <span class="count" id="count" aria-live="polite">地球上已经亮起 <b>0</b> 个微笑</span>
+    </div>
+  </header>
+
+  <section aria-labelledby="about">
+    <h2 id="about">关于我 <small>About</small></h2>
+    <p>我是 Momo。世界很大，有很多没去过的地方、没听过的故事、没见过的人。我想慢慢去认识它们，一点一点把好奇心装满。</p>
+  </section>
+
+  <section aria-labelledby="wish">
+    <h2 id="wish">我的三个愿望 <small>Wishes</small></h2>
+    <ul class="wishes">
+      <li>
+        <span class="mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--mint)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18M12 12l-6.4 6.4M12 12l6.4 6.4"/></svg>
+        </span>
+        <div><h3>世界和平</h3><p>每个地方都没有战争，大家晚上都能安心睡个好觉。</p></div>
+      </li>
+      <li>
+        <span class="mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--mint)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M10 20v-5h4v5"/></svg>
+        </span>
+        <div><h3>安居乐业</h3><p>每个人都有一个温暖的家，做着自己喜欢、也值得骄傲的事。</p></div>
+      </li>
+      <li>
+        <span class="mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--peach)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 14.5c1 1.3 2.4 2 4 2s3-.7 4-2"/><path d="M9 9.5h.01M15 9.5h.01" stroke-width="2.6"/></svg>
+        </span>
+        <div><h3>开开心心</h3><p>不管今天发生了什么，都能找到一件让自己笑出来的小事。</p></div>
+      </li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="explore">
+    <h2 id="explore">探索清单 <small>To explore</small></h2>
+    <p>实线的是已经出发的，虚线的还在路上。</p>
+    <div class="explore">
+      <span class="chip done">做出自己的第一个网页</span>
+      <span class="chip">学会用 GitHub</span>
+      <span class="chip">去一座没去过的城市</span>
+      <span class="chip">学一句新的外语</span>
+      <span class="chip">认识一个新朋友</span>
+      <span class="chip">看一次满天星星</span>
+    </div>
+  </section>
+
+  <section id="blog" aria-labelledby="blog-title">
+    <h2 id="blog-title">博客 <small>Blog</small></h2>
+    <ul class="posts" id="postList"><li class="empty">正在打开文章列表…</li></ul>
+  </section>
+</main>
+
+<article id="reader" class="stack" hidden>
+  <a class="back" href="#blog">← 回到主页</a>
+  <header class="post-head">
+    <time class="eyebrow" id="rDate"></time>
+    <h1 id="rTitle"></h1>
+  </header>
+  <div class="post-body" id="rBody"></div>
+</article>
+
+  <footer>
+    <span>© 2026 <span class="latin">Momo</span> · 用心做的小主页</span>
+    <span>坐标：地球 · 银河系猎户臂</span>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var cv = document.getElementById('globe');
+  var ctx = cv.getContext('2d');
+  var btn = document.getElementById('smileBtn');
+  var countEl = document.getElementById('count');
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Points spread evenly over a sphere
+  var N = 520, pts = [];
+  var golden = Math.PI * (3 - Math.sqrt(5));
+  for (var i = 0; i < N; i++) {
+    var y = 1 - (i / (N - 1)) * 2, r = Math.sqrt(1 - y * y), t = golden * i;
+    pts.push({ x: Math.cos(t) * r, y: y, z: Math.sin(t) * r, lit: 0, born: 0 });
+  }
+
+  // Remember this visitor's smiles (only in their own browser)
+  var mine = 0;
+  try { mine = parseInt(localStorage.getItem('momo-smiles') || '0', 10) || 0; } catch (e) {}
+  var BASE = 14; // smiles already on the globe when the page opens
+  function seed(n) {
+    var tries = 0;
+    while (n > 0 && tries < 5000) {
+      var p = pts[(Math.random() * N) | 0];
+      if (!p.lit) { p.lit = 1; p.born = -1e9; n--; }
+      tries++;
+    }
+  }
+  seed(Math.min(BASE + mine, N));
+
+  function total() { return pts.filter(function (p) { return p.lit; }).length; }
+  function showCount() { countEl.innerHTML = '地球上已经亮起 <b>' + total() + '</b> 个微笑'; }
+  showCount();
+
+  var angle = 0, tilt = 0.38, size = 0, dpr = 1;
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    size = cv.clientWidth;
+    cv.width = size * dpr; cv.height = size * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function project(p) {
+    var x = p.x * Math.cos(angle) - p.z * Math.sin(angle);
+    var z = p.x * Math.sin(angle) + p.z * Math.cos(angle);
+    var y = p.y * Math.cos(tilt) - z * Math.sin(tilt);
+    z = p.y * Math.sin(tilt) + z * Math.cos(tilt);
+    return { x: x, y: y, z: z };
+  }
+  function draw(now) {
+    var cs = getComputedStyle(document.documentElement);
+    var dot = cs.getPropertyValue('--dot').trim();
+    var peach = cs.getPropertyValue('--peach').trim();
+    var line = cs.getPropertyValue('--line').trim();
+    var mint = cs.getPropertyValue('--mint').trim();
+    var c = size / 2, R = size * 0.40;
+    ctx.clearRect(0, 0, size, size);
+    orbiter(c, R, now, false, peach, mint);
+
+    ctx.beginPath(); ctx.arc(c, c, R, 0, Math.PI * 2);
+    ctx.strokeStyle = line; ctx.lineWidth = 1; ctx.stroke();
+
+    for (var i = 0; i < N; i++) {
+      var p = pts[i], q = project(p);
+      if (q.z < -0.05) continue;
+      var depth = 0.35 + 0.65 * q.z;
+      var px = c + q.x * R, py = c + q.y * R;
+      if (p.lit) {
+        var age = (now - p.born) / 1000;
+        var pulse = age < 1.2 ? (1 - age / 1.2) : 0;
+        if (pulse > 0) {
+          ctx.beginPath(); ctx.arc(px, py, 3 + pulse * 14, 0, Math.PI * 2);
+          ctx.globalAlpha = pulse * 0.35; ctx.fillStyle = peach; ctx.fill();
+        }
+        ctx.globalAlpha = depth;
+        ctx.beginPath(); ctx.arc(px, py, 2.6 + depth * 1.2, 0, Math.PI * 2);
+        ctx.fillStyle = peach; ctx.fill();
+      } else {
+        ctx.globalAlpha = depth * 0.9;
+        ctx.beginPath(); ctx.arc(px, py, 0.8 + depth * 0.9, 0, Math.PI * 2);
+        ctx.fillStyle = dot; ctx.fill();
+      }
+    }
+    ctx.globalAlpha = 1;
+    orbiter(c, R, now, true, peach, mint);
+  }
+
+  // A little peach that circles the globe like a moon
+  function orbiter(c, R, now, front, peach, mint) {
+    var o = reduce ? 0.9 : now / 1000 * 0.7;
+    var z = Math.sin(o);
+    if ((z > 0) !== front) return;
+    var x = c + Math.cos(o) * R * 1.18;
+    var y = c + Math.sin(o) * R * 0.34 - Math.cos(o) * R * 0.16;
+    var s = 6 + z * 2;
+    ctx.globalAlpha = front ? 1 : 0.55;
+    ctx.fillStyle = mint;
+    ctx.beginPath(); ctx.ellipse(x + s * 0.35, y - s * 0.95, s * 0.5, s * 0.25, -0.6, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = peach;
+    ctx.beginPath(); ctx.arc(x, y, s, 0, Math.PI * 2); ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  // Drag the globe to spin it; it eases back to its own slow turn
+  var BASE_SPEED = 0.0035, vel = BASE_SPEED, dragging = false, lastX = 0;
+  cv.addEventListener('pointerdown', function (e) {
+    dragging = true; lastX = e.clientX;
+    try { cv.setPointerCapture(e.pointerId); } catch (err) {}
+  });
+  cv.addEventListener('pointermove', function (e) {
+    if (!dragging) return;
+    var dx = e.clientX - lastX; lastX = e.clientX;
+    angle -= dx * 0.01;
+    vel = Math.max(-0.2, Math.min(0.2, -dx * 0.004));
+    if (reduce) draw(performance.now());
+  });
+  function release() { dragging = false; }
+  cv.addEventListener('pointerup', release);
+  cv.addEventListener('pointercancel', release);
+
+  function loop(now) {
+    if (!dragging) {
+      vel += (BASE_SPEED - vel) * 0.03;
+      angle += vel;
+    }
+    draw(now);
+    requestAnimationFrame(loop);
+  }
+
+  // Hearts that float up from the button
+  var HEART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21l-1.4-1.3C5.4 15 2 11.9 2 8.1 2 5 4.4 2.6 7.5 2.6c1.7 0 3.4.8 4.5 2.1 1.1-1.3 2.8-2.1 4.5-2.1C19.6 2.6 22 5 22 8.1c0 3.8-3.4 6.9-8.6 11.6z"/></svg>';
+  function burst() {
+    if (reduce || !Element.prototype.animate) return;
+    var row = btn.parentNode, br = btn.getBoundingClientRect(), rr = row.getBoundingClientRect();
+    for (var i = 0; i < 7; i++) {
+      var h = document.createElement('span');
+      h.className = 'heart';
+      h.innerHTML = HEART;
+      h.style.left = (br.left - rr.left + br.width / 2 - 9) + 'px';
+      h.style.top = (br.top - rr.top - 4) + 'px';
+      row.appendChild(h);
+      var dx = (Math.random() - 0.5) * 140, dy = -(50 + Math.random() * 80);
+      var rot = (Math.random() - 0.5) * 70, sc = 0.6 + Math.random() * 0.7;
+      var a = h.animate([
+        { transform: 'translate(0,0) scale(.3)', opacity: 1 },
+        { transform: 'translate(' + dx * 0.6 + 'px,' + dy * 0.7 + 'px) rotate(' + rot / 2 + 'deg) scale(' + sc + ')', opacity: 1, offset: 0.6 },
+        { transform: 'translate(' + dx + 'px,' + dy + 'px) rotate(' + rot + 'deg) scale(' + sc * 0.8 + ')', opacity: 0 }
+      ], { duration: 900 + Math.random() * 500, easing: 'cubic-bezier(.2,.7,.3,1)' });
+      a.onfinish = (function (el) { return function () { el.remove(); }; })(h);
+    }
+  }
+
+  btn.addEventListener('click', function () {
+    // light a dot on the side facing us
+    var now = performance.now(), best = null;
+    for (var k = 0; k < 400; k++) {
+      var p = pts[(Math.random() * N) | 0];
+      if (p.lit) continue;
+      var q = project(p);
+      if (q.z > 0.45) { best = p; break; }
+    }
+    if (!best) best = pts.find(function (p) { return !p.lit; });
+    if (best) { best.lit = 1; best.born = now; }
+    mine++;
+    try { localStorage.setItem('momo-smiles', String(mine)); } catch (e) {}
+    showCount();
+    burst();
+    btn.classList.remove('boing'); void btn.offsetWidth; btn.classList.add('boing');
+    if (reduce) draw(now);
+  });
+
+  resize();
+  window.addEventListener('resize', function () { resize(); if (reduce) draw(performance.now()); });
+  if (reduce) {
+    draw(performance.now());
+    if (window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () { draw(performance.now()); });
+  } else {
+    requestAnimationFrame(loop);
+  }
+})();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+<script>
+// Blog: the list lives in posts/posts.json, each article in posts/<slug>.md
+(function () {
+  var list = document.getElementById('postList');
+  var home = document.getElementById('home');
+  var reader = document.getElementById('reader');
+  var rTitle = document.getElementById('rTitle');
+  var rDate = document.getElementById('rDate');
+  var rBody = document.getElementById('rBody');
+  var posts = [];
+
+  function esc(s) {
+    return String(s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+  function longDate(d) {
+    var p = d.split('-');
+    return p[0] + ' 年 ' + (+p[1]) + ' 月 ' + (+p[2]) + ' 日';
+  }
+  function renderList() {
+    if (!posts.length) {
+      list.innerHTML = '<li class="empty">还没有文章，第一篇正在路上。</li>';
+      return;
+    }
+    list.innerHTML = posts.map(function (p) {
+      return '<li><a href="#' + esc(p.slug) + '">' +
+        '<time datetime="' + esc(p.date) + '">' + esc(p.date.replace(/-/g, '.')) + '</time>' +
+        '<span><strong>' + esc(p.title) + '</strong>' +
+        (p.summary ? '<em>' + esc(p.summary) + '</em>' : '') + '</span></a></li>';
+    }).join('');
+  }
+  function openPost(p) {
+    home.hidden = true;
+    reader.hidden = false;
+    rTitle.textContent = p.title;
+    rDate.textContent = longDate(p.date);
+    rDate.setAttribute('datetime', p.date);
+    rBody.innerHTML = '<p>正在打开…</p>';
+    document.title = p.title + ' · Momo';
+    window.scrollTo(0, 0);
+    fetch('posts/' + p.slug + '.md')
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.text(); })
+      .then(function (md) {
+        rBody.innerHTML = window.marked ? marked.parse(md) : '<pre>' + esc(md) + '</pre>';
+      })
+      .catch(function () { rBody.innerHTML = '<p>这篇文章暂时打不开，刷新一下再试试。</p>'; });
+  }
+  function route() {
+    var h = decodeURIComponent(location.hash.slice(1));
+    var p = posts.find(function (x) { return x.slug === h; });
+    if (p) { openPost(p); return; }
+    var wasReading = !reader.hidden;
+    reader.hidden = true;
+    home.hidden = false;
+    document.title = 'Momo 的小星球';
+    var target = h && document.getElementById(h);
+    if (target) target.scrollIntoView();
+    else if (wasReading) window.scrollTo(0, 0);
+  }
+
+  fetch('posts/posts.json')
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (data) {
+      posts = data.slice().sort(function (a, b) { return b.date.localeCompare(a.date); });
+      renderList();
+      route();
+    })
+    .catch(function () {
+      list.innerHTML = '<li class="empty">文章列表暂时打不开，刷新一下再试试。</li>';
+    });
+  window.addEventListener('hashchange', route);
+})();
+</script>
+</body>
+</html>
