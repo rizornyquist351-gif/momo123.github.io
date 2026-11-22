@@ -55,6 +55,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body {
   background: var(--bg);
   color: var(--fg);
@@ -307,6 +308,52 @@ button.smile.boing { animation: boing .45s cubic-bezier(.3, 1.6, .5, 1); }
 .posts a span { transition: transform .2s ease; }
 .posts a:hover span { transform: translateX(4px); }
 
+/* Wide screens: globe beside the name, sections side by side */
+@media (min-width: 960px) {
+  .wrap { max-width: 1120px; padding-block: 72px 48px; }
+  #home.stack {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "hero hero"
+      "about explore"
+      "wish wish"
+      "blog blog";
+    gap: 88px 64px;
+    align-items: start;
+  }
+  .hero { grid-area: hero; }
+  .sec-about { grid-area: about; }
+  .sec-explore { grid-area: explore; }
+  .sec-wish { grid-area: wish; }
+  .sec-blog { grid-area: blog; }
+
+  .hero {
+    grid-template-columns: 1fr minmax(360px, 460px);
+    grid-template-rows: 1fr auto auto auto auto 1fr;
+    grid-template-areas:
+      ".       globe"
+      "eyebrow globe"
+      "name    globe"
+      "lead    globe"
+      "smile   globe"
+      ".       globe";
+    column-gap: 72px;
+    row-gap: 24px;
+  }
+  .globe-box { grid-area: globe; width: 100%; }
+  .hero .eyebrow { grid-area: eyebrow; }
+  .hero h1 { grid-area: name; font-size: clamp(88px, 10vw, 128px); }
+  .hero .lead { grid-area: lead; font-size: 26px; }
+  .smile-row { grid-area: smile; }
+
+  .wishes { grid-template-columns: repeat(3, 1fr); }
+  .wishes li { grid-template-columns: 1fr; gap: 14px; padding: 24px; }
+  .posts a { grid-template-columns: 120px 1fr; }
+
+  #reader { max-width: 680px; margin-inline: auto; width: 100%; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   button.smile, .chip, .posts a span { transition: none; }
   .globe-box, h1 .l, h1 .eye, button.smile.boing, .wishes li:hover .mark svg, .blob, .star, .cloud { animation: none; }
@@ -331,12 +378,12 @@ button.smile.boing { animation: boing .45s cubic-bezier(.3, 1.6, .5, 1); }
     </div>
   </header>
 
-  <section aria-labelledby="about">
+  <section class="sec-about" aria-labelledby="about">
     <h2 id="about">关于我 <small>About</small></h2>
     <p>我是 Momo。世界很大，有很多没去过的地方、没听过的故事、没见过的人。我想慢慢去认识它们，一点一点把好奇心装满。</p>
   </section>
 
-  <section aria-labelledby="wish">
+  <section class="sec-wish" aria-labelledby="wish">
     <h2 id="wish">我的三个愿望 <small>Wishes</small></h2>
     <ul class="wishes">
       <li>
@@ -360,7 +407,7 @@ button.smile.boing { animation: boing .45s cubic-bezier(.3, 1.6, .5, 1); }
     </ul>
   </section>
 
-  <section aria-labelledby="explore">
+  <section class="sec-explore" aria-labelledby="explore">
     <h2 id="explore">探索清单 <small>To explore</small></h2>
     <p>实线的是已经出发的，虚线的还在路上。</p>
     <div class="explore">
@@ -373,7 +420,7 @@ button.smile.boing { animation: boing .45s cubic-bezier(.3, 1.6, .5, 1); }
     </div>
   </section>
 
-  <section id="blog" aria-labelledby="blog-title">
+  <section id="blog" class="sec-blog" aria-labelledby="blog-title">
     <h2 id="blog-title">博客 <small>Blog</small></h2>
     <ul class="posts" id="postList"><li class="empty">正在打开文章列表…</li></ul>
   </section>
