@@ -18,6 +18,17 @@
   --peach: #F2738C;
   --mint: #3FAE8C;
   --dot: #B9CAC5;
+  --sun: #E9A62A;
+  --sky: #5B9BE0;
+  --tint-peach: #FFE9EC;
+  --tint-mint: #E0F4EC;
+  --tint-sun: #FFF3D6;
+  --tint-sky: #E4EEFB;
+  --cloud: #FFFFFF;
+  --blob-a: rgba(242, 115, 140, .20);
+  --blob-b: rgba(63, 174, 140, .17);
+  --blob-c: rgba(233, 166, 42, .18);
+  --star: #E9A62A;
   --font-display: "ZCOOL KuaiLe", "Nunito", "PingFang SC", "Microsoft YaHei", sans-serif;
   --font-latin: "Nunito", "Noto Sans SC", system-ui, sans-serif;
   --font-body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
@@ -26,12 +37,20 @@
   :root:not([data-theme="light"]) {
     --bg: #121918; --surface: #19221F; --fg: #E6EEEB; --muted: #94A6A1;
     --line: #2A3633; --peach: #FF94A8; --mint: #67D2B0; --dot: #3E4F4B;
+    --sun: #FFCF6B; --sky: #8DBFF5; --tint-peach: #2C1F25; --tint-mint: #19302A;
+    --tint-sun: #2E2717; --tint-sky: #1A2636; --cloud: #2C3B38;
+    --blob-a: rgba(255, 148, 168, .13); --blob-b: rgba(103, 210, 176, .11);
+    --blob-c: rgba(141, 191, 245, .13); --star: #FFF0C2;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #121918; --surface: #19221F; --fg: #E6EEEB; --muted: #94A6A1;
   --line: #2A3633; --peach: #FF94A8; --mint: #67D2B0; --dot: #3E4F4B;
+  --sun: #FFCF6B; --sky: #8DBFF5; --tint-peach: #2C1F25; --tint-mint: #19302A;
+  --tint-sun: #2E2717; --tint-sky: #1A2636; --cloud: #2C3B38;
+  --blob-a: rgba(255, 148, 168, .13); --blob-b: rgba(103, 210, 176, .11);
+  --blob-c: rgba(141, 191, 245, .13); --star: #FFF0C2;
   color-scheme: dark;
 }
 
@@ -207,6 +226,62 @@ footer .latin { font-family: var(--font-latin); }
 .post-body pre code { border: 0; padding: 0; }
 .post-body hr { border: 0; border-top: 1px solid var(--line); width: 100%; }
 
+/* Sky behind everything: soft color clouds and twinkling stars */
+.sky { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.blob { position: absolute; border-radius: 50%; filter: blur(60px); }
+.blob.a { width: 420px; height: 420px; background: var(--blob-a); top: -140px; right: -160px; animation: drift 22s ease-in-out infinite alternate; }
+.blob.b { width: 380px; height: 380px; background: var(--blob-b); top: 42%; left: -180px; animation: drift 26s ease-in-out infinite alternate-reverse; }
+.blob.c { width: 360px; height: 360px; background: var(--blob-c); bottom: -160px; right: 5%; animation: drift 30s ease-in-out infinite alternate; }
+@keyframes drift { to { transform: translate(50px, 40px) scale(1.12); } }
+.star { position: absolute; color: var(--star); animation: twinkle 3.2s ease-in-out infinite; }
+.star svg { width: 100%; height: 100%; display: block; fill: currentColor; }
+@keyframes twinkle { 0%, 100% { opacity: .2; transform: scale(.6); } 50% { opacity: .95; transform: scale(1.1) rotate(25deg); } }
+.wrap { position: relative; z-index: 1; }
+
+/* Globe glow and little clouds */
+.globe-box { isolation: isolate; }
+.globe-box::before {
+  content: ""; position: absolute; inset: -4%; border-radius: 50%; z-index: -1;
+  background: radial-gradient(circle, var(--tint-sun) 0%, var(--tint-peach) 42%, transparent 70%);
+}
+.cloud { position: absolute; height: 16px; border-radius: 16px; background: var(--cloud); animation: cloud 9s ease-in-out infinite alternate; }
+.cloud::before, .cloud::after { content: ""; position: absolute; background: inherit; border-radius: 50%; }
+.cloud::before { width: 22px; height: 22px; left: 8px; top: -11px; }
+.cloud::after { width: 16px; height: 16px; left: 25px; top: -7px; }
+.cloud.one { width: 54px; top: 20%; left: -2%; }
+.cloud.two { width: 44px; bottom: 18%; right: 0; animation-duration: 11s; animation-direction: alternate-reverse; }
+@keyframes cloud { to { transform: translateX(24px); } }
+
+/* Sparkle before each section title */
+h2::before {
+  content: ""; width: 16px; height: 16px; align-self: center; flex: none;
+  background: var(--sun);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0c.6 6.2 5.8 11.4 12 12-6.2.6-11.4 5.8-12 12-.6-6.2-5.8-11.4-12-12C6.2 11.4 11.4 6.2 12 0z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0c.6 6.2 5.8 11.4 12 12-6.2.6-11.4 5.8-12 12-.6-6.2-5.8-11.4-12-12C6.2 11.4 11.4 6.2 12 0z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.post-body h2::before { content: none; }
+
+/* Wishes as soft colored cards */
+.wishes { border-top: 0; gap: 12px; }
+.wishes li { border-bottom: 0; border-radius: 20px; padding: 18px 20px; background: var(--tint-mint); }
+.wishes li:nth-child(2) { background: var(--tint-sky); }
+.wishes li:nth-child(3) { background: var(--tint-peach); }
+.wishes .mark { background: var(--surface); border: 0; }
+
+/* Colorful explore chips */
+.chip { background: var(--surface); }
+.chip:nth-child(4n+1) { border-color: var(--mint); }
+.chip:nth-child(4n+2) { border-color: var(--peach); }
+.chip:nth-child(4n+3) { border-color: var(--sun); }
+.chip:nth-child(4n) { border-color: var(--sky); }
+.chip.done { background: var(--mint); border-color: var(--mint); color: var(--bg); }
+
+/* Post rows light up on hover */
+.posts a { border-radius: 14px; padding-inline: 12px; margin-inline: -12px; transition: background .2s ease; }
+.posts a:hover { background: var(--tint-peach); }
+
+#greet { display: inline-block; color: var(--peach); }
+
 /* Cute motion */
 html, body { overflow-x: clip; }
 .globe-box { animation: pop .9s cubic-bezier(.3, 1.5, .5, 1) both; }
@@ -234,18 +309,20 @@ button.smile.boing { animation: boing .45s cubic-bezier(.3, 1.6, .5, 1); }
 
 @media (prefers-reduced-motion: reduce) {
   button.smile, .chip, .posts a span { transition: none; }
-  .globe-box, h1 .l, h1 .eye, button.smile.boing, .wishes li:hover .mark svg { animation: none; }
+  .globe-box, h1 .l, h1 .eye, button.smile.boing, .wishes li:hover .mark svg, .blob, .star, .cloud { animation: none; }
+  .star { opacity: .7; }
   .chip:hover, .posts a:hover span { transform: none; }
 }
 </style>
 </head>
 <body>
 
+<div class="sky" id="sky" aria-hidden="true"><span class="blob a"></span><span class="blob b"></span><span class="blob c"></span></div>
 <div class="wrap">
 <main id="home" class="stack">
   <header class="hero">
-    <div class="globe-box"><canvas id="globe" aria-label="一颗慢慢转动的小地球，粉色的点是收到的微笑"></canvas></div>
-    <div class="eyebrow">Hello · 你好呀 · こんにちは</div>
+    <div class="globe-box"><canvas id="globe" aria-label="一颗慢慢转动的小地球，粉色的点是收到的微笑"></canvas><span class="cloud one" aria-hidden="true"></span><span class="cloud two" aria-hidden="true"></span></div>
+    <div class="eyebrow"><span id="greet">你好呀</span> · 来自地球的问候</div>
     <h1 aria-label="Momo"><span aria-hidden="true"><span class="l" style="--i:0">M</span><span class="l" style="--i:1"><span class="eye">o</span></span><span class="peach"><span class="l" style="--i:2">m</span><span class="l" style="--i:3"><span class="eye">o</span></span></span></span></h1>
     <p class="lead">喜欢到处看看、到处问问。<br>希望这颗星球上的每个人，都能开开心心。</p>
     <div class="smile-row">
@@ -270,7 +347,7 @@ button.smile.boing { animation: boing .45s cubic-bezier(.3, 1.6, .5, 1); }
       </li>
       <li>
         <span class="mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="var(--mint)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M10 20v-5h4v5"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--sky)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-6 8 6v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M10 20v-5h4v5"/></svg>
         </span>
         <div><h3>安居乐业</h3><p>每个人都有一个温暖的家，做着自己喜欢、也值得骄傲的事。</p></div>
       </li>
@@ -571,6 +648,40 @@ button.smile.boing { animation: boing .45s cubic-bezier(.3, 1.6, .5, 1); }
       list.innerHTML = '<li class="empty">文章列表暂时打不开，刷新一下再试试。</li>';
     });
   window.addEventListener('hashchange', route);
+})();
+</script>
+
+<script>
+// Twinkling stars and a greeting that travels around the world
+(function () {
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var sky = document.getElementById('sky');
+  var STAR = '<svg viewBox="0 0 24 24"><path d="M12 0c.6 6.2 5.8 11.4 12 12-6.2.6-11.4 5.8-12 12-.6-6.2-5.8-11.4-12-12C6.2 11.4 11.4 6.2 12 0z"/></svg>';
+  for (var i = 0; i < 16; i++) {
+    var s = document.createElement('span');
+    var size = 7 + Math.random() * 9;
+    s.className = 'star';
+    s.innerHTML = STAR;
+    s.style.width = s.style.height = size + 'px';
+    s.style.left = (Math.random() * 96) + '%';
+    s.style.top = (Math.random() * 96) + '%';
+    s.style.animationDelay = (-Math.random() * 3.2) + 's';
+    s.style.animationDuration = (2.6 + Math.random() * 2.4) + 's';
+    sky.appendChild(s);
+  }
+
+  var greet = document.getElementById('greet');
+  var words = ['你好呀', 'Hello', 'こんにちは', '안녕하세요', 'Bonjour', 'Hola', 'Ciao', 'Olá', 'Hallo', 'Привет', 'Merhaba', 'Xin chào'];
+  if (reduce || !greet.animate) return;
+  var n = 0;
+  setInterval(function () {
+    n = (n + 1) % words.length;
+    greet.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(-6px)' }], { duration: 220, easing: 'ease-in' })
+      .onfinish = function () {
+        greet.textContent = words[n];
+        greet.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 260, easing: 'ease-out' });
+      };
+  }, 2400);
 })();
 </script>
 </body>
